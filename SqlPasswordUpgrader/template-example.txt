@@ -1,0 +1,2 @@
+CREATE USER [{0}] WITH PASSWORD = '{1}', DEFAULT_SCHEMA = [Something]
+GO

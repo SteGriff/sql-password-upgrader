@@ -41,8 +41,7 @@ namespace SqlPasswordUpgrader
 
                 statement += String.Format(template,
                     username,
-                    password,
-                    Environment.NewLine);
+                    password);
 
                 if (originalPassword != password)
                 {

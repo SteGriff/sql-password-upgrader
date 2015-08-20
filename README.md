@@ -23,7 +23,6 @@ The `create-logins` file contains the usernames and new passwords formatted acco
 
 	{0} will be replaced with the username
 	{1} will be replaced with the new password
-	{2} will be replaced with Environment.NewLine (generally \r\n on Windows)
 
 ## Azure password policy
 
