@@ -11,10 +11,19 @@ Opens the file `C:\temp\users.txt` which is expected to be tab-separated file of
 	...
 
 It then iterates over every password, and where it doesn't meet the Azure security criteria (see bottom of document), "upgrades" it. Yes, this requires you to own the user passwords in plaintext. The goal with upgrading is to cause as little friction to login users as possible (i.e. make subtle, easy-to-remember changes).
+lly be an SQL script.
 
 ### Output 
 
 In `C:\temp`, find the `create-logins-*` and `report-*` files and copy them to a safe place!
+
+### Template
+
+The `create-logins` file contains the usernames and new passwords formatted according to a user-specified template (`template.txt` in the same directory as the exe). The template works using string.format notation like so:
+
+	{0} will be replaced with the username
+	{1} will be replaced with the new password
+	{2} will be replaced with Environment.NewLine (generally \r\n on Windows)
 
 ## Azure password policy
 

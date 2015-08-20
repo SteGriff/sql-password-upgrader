@@ -11,6 +11,8 @@ namespace SqlPasswordUpgrader
         private const string specialCharacters = "!£$%^&*()-=_+,./<>?;'#:@~[]{}";
         private const string numbers = "0123456789";
 
+        private const int MIN_LENGTH = 8;
+
         private string[] characterSets = { lowercaseCharacters, uppercaseCharacters, specialCharacters, numbers };
 
         // Used for padding passwords where username cant be used
@@ -50,17 +52,7 @@ namespace SqlPasswordUpgrader
         private bool LongEnough(string password)
         {
             // 8 or more chars
-            return password.Length > 7;
-        }
-
-        public string CheckAndFixLength(string password, string username)
-        {
-            if (!LongEnough(password))
-            {
-                password = MakeLonger(password, username);
-            }
-
-            return password;
+            return password.Length >= MIN_LENGTH;
         }
 
         /// <summary>
@@ -72,8 +64,14 @@ namespace SqlPasswordUpgrader
         /// <returns></returns>
         private string MakeLonger(string password, string username)
         {
-            int deficit = 8 - password.Length;
+            int deficit = MIN_LENGTH - password.Length;
             string padding = "";
+
+            //The odd case where password is blank
+            if (String.IsNullOrEmpty(password))
+            {
+                padding = _specialString;
+            }
 
             try
             {
@@ -87,18 +85,54 @@ namespace SqlPasswordUpgrader
             return password + padding;
         }
 
-        public string CheckAndFixComplexity(string password)
+        private string CheckAndFixLength(string password, string username)
         {
-            if (!ComplexEnough(password))
+            if (!LongEnough(password))
             {
-                password = password + "+1";
+                password = MakeLonger(password, username);
             }
 
-            if (!ComplexEnough(password))
+            return password;
+        }
+
+        private string CheckAndFixComplexity(string password)
+        {
+            if (ComplexEnough(password))
             {
-                password = password + "x";
+                return password;
             }
 
+            string[] solutions = { "+", "+1", "+1x", "+1X" };
+            bool solved = false;
+
+            foreach(var s in solutions)
+            {
+                if (ComplexEnough(password + s))
+                {
+                    password += s;
+                    solved = true;
+                    break;
+                }
+            }
+
+            if (!solved)
+            {
+                throw new ApplicationException("Couldn't fix password [" + password + "]");
+            }
+
+            return password;
+        }
+
+        /// <summary>
+        /// Fix the length and complexity of a password
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public string CheckAndFix(string password, string username)
+        {
+            password = CheckAndFixLength(password, username);
+            password = CheckAndFixComplexity(password);
             return password;
         }
 

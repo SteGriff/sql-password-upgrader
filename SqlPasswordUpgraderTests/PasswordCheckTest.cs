@@ -4,8 +4,7 @@ using System;
 
 namespace SqlPasswordUpgraderTests
 {
-    
-    
+
     /// <summary>
     ///This is a test class for PasswordCheckTest and is intended
     ///to contain all PasswordCheckTest Unit Tests
@@ -13,7 +12,6 @@ namespace SqlPasswordUpgraderTests
     [TestClass()]
     public class PasswordCheckTest
     {
-
 
         private TestContext testContextInstance;
 
@@ -134,37 +132,79 @@ namespace SqlPasswordUpgraderTests
             Assert.AreEqual(expected, actual);
         }
 
-        /// <summary>
-        ///A test for LongEnough
-        ///</summary>
         [TestMethod()]
-        [DeploymentItem("SqlPasswordUpgrader.exe")]
-        public void LongEnoughTest()
+        public void BlankPasswordGetsFixed()
         {
-            PasswordCheck_Accessor target = new PasswordCheck_Accessor(); // TODO: Initialize to an appropriate value
-            string password = string.Empty; // TODO: Initialize to an appropriate value
-            bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.LongEnough(password);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            PasswordCheck_Accessor target = new PasswordCheck_Accessor();
+            PasswordCheck pc = new PasswordCheck();
+
+            string password = string.Empty;
+            string username = "some.user@example.com";
+
+            password = pc.CheckAndFix(password, username);
+
+            bool valid = target.ComplexEnough(password);
+            Assert.IsTrue(valid);
         }
 
-        /// <summary>
-        ///A test for CheckAndFixLength
-        ///</summary>
         [TestMethod()]
-        public void CheckAndFixLengthTest()
+        public void ShortSimplePasswordGetsFixed()
         {
-            PasswordCheck target = new PasswordCheck(); // TODO: Initialize to an appropriate value
-            string password = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            string expected = string.Empty; // TODO: Initialize to an appropriate value
-            string actual;
-            actual = target.CheckAndFixLength(password, username);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            PasswordCheck_Accessor target = new PasswordCheck_Accessor();
+            PasswordCheck pc = new PasswordCheck();
+
+            string password = "a";
+            string username = "some.user@example.com";
+
+            password = pc.CheckAndFix(password, username);
+            
+            bool valid = target.ComplexEnough(password);
+            Assert.IsTrue(valid);
         }
 
+        [TestMethod()]
+        public void ShortComplexPasswordGetsFixed()
+        {
+            PasswordCheck_Accessor target = new PasswordCheck_Accessor();
+            PasswordCheck pc = new PasswordCheck();
+
+            string password = "Ab*1";
+            string username = "some.user@example.com";
+
+            password = pc.CheckAndFix(password, username);
+
+            bool valid = target.ComplexEnough(password);
+            Assert.IsTrue(valid);
+        }
+
+        [TestMethod()]
+        public void LongSimplePasswordGetsFixed()
+        {
+            PasswordCheck_Accessor target = new PasswordCheck_Accessor();
+            PasswordCheck pc = new PasswordCheck();
+
+            string password = "abcdefgh";
+            string username = "some.user@example.com";
+
+            password = pc.CheckAndFix(password, username);
+
+            bool valid = target.ComplexEnough(password);
+            Assert.IsTrue(valid);
+        }
+
+        [TestMethod()]
+        public void GoodPasswordDoesNotChange()
+        {
+            PasswordCheck_Accessor target = new PasswordCheck_Accessor();
+            PasswordCheck pc = new PasswordCheck();
+
+            string oldPassword = "03-Airborne-Stars***";
+            string username = "some.user@example.com";
+
+            string newPassword;
+            newPassword = pc.CheckAndFix(oldPassword, username);
+
+            Assert.AreEqual(oldPassword, newPassword);
+        }
     }
 }

@@ -11,11 +11,19 @@ namespace SqlPasswordUpgrader
 
             var pc = new PasswordCheck("DefaultPassword#951");
 
+            //The input file of usernames/passwords
             string filename = "C:\\temp\\users.txt";
             string[] lines = File.ReadAllLines(filename);
 
-            Console.WriteLine("Read " + filename);
+            Console.WriteLine("Opened " + filename);
 
+            //The template (SQL statement probably) to insert parsed values into
+            string templateFilename = "template.txt";
+            string template = File.ReadAllText(templateFilename);
+
+            Console.WriteLine("Opened template " + templateFilename);
+
+            //Prepare final outputs
             string statement = "";
             string report = "Users whose passwords were changed:" + Environment.NewLine;
 
@@ -29,10 +37,9 @@ namespace SqlPasswordUpgrader
 
                 string originalPassword = password;
 
-                password = pc.CheckAndFixLength(password, username);
-                password = pc.CheckAndFixComplexity(password);
+                password = pc.CheckAndFix(password, username);
 
-                statement += String.Format("CREATE LOGIN [{0}] WITH PASSWORD = '{1}'{2}GO{2}",
+                statement += String.Format(template,
                     username,
                     password,
                     Environment.NewLine);
@@ -64,6 +71,14 @@ namespace SqlPasswordUpgrader
             Console.WriteLine("Saved report to " + reportFileName);
             Console.ReadLine();
 
+        }
+
+        static void Error(string message)
+        {
+            Console.WriteLine("Error:");
+            Console.WriteLine(message);
+            Console.WriteLine("Press Return to quit");
+            Console.ReadLine();
         }
 
     }
