@@ -36,12 +36,11 @@ namespace SqlPasswordUpgrader
                 string password = parts[1];
 
                 string originalPassword = password;
+                parts[1] = password;
 
                 password = pc.CheckAndFix(password, username);
 
-                statement += String.Format(template,
-                    username,
-                    password);
+                statement += String.Format(template, parts);
 
                 if (originalPassword != password)
                 {
